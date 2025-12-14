@@ -35,7 +35,7 @@ int main(void) {
                 UART0_WriteString("LED OFF\r\n");
                 break;
             default:
-                UART0_WriteString("Invalid Command\r\n");
+                UART0_WriteString("It is never valid\r\n");
         }
 
         delay(); // Small delay
