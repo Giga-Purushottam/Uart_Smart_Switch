@@ -1,0 +1,5 @@
+--cpu ARM7TDMI "startup.o" "labproj.o" 
+--strict --scatter "LabProj.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\LabProj.map" -o LabProj.axf

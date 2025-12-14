@@ -1,0 +1,5 @@
+-c --cpu ARM7TDMI -g -O0 --apcs=interwork 
+-I "I:\c code\MICRO CONTROLLER\Microvision\ARM\RV31\INC" 
+-I "I:\c code\MICRO CONTROLLER\Microvision\ARM\CMSIS\Include" 
+-I "I:\c code\MICRO CONTROLLER\Microvision\ARM\Inc\Philips" 
+-o "labproj.o" --omf_browse "labproj.crf" --depend "labproj.d" "labproj.c"

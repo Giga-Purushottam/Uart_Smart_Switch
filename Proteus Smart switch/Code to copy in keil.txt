@@ -1,0 +1,87 @@
+#include <lpc214x.h>
+#include <string.h>
+
+#define LED1 (1 << 16)  // P0.16
+#define LED2 (1 << 17)  // P0.17
+
+void UART0_Init(void);
+void UART0_TxChar(char ch);
+void UART0_TxString(const char *str);
+char UART0_RxChar(void);
+void delay_ms(unsigned int ms);
+
+int main(void) {
+    char cmd[5];  // To store 4-character command + null terminator
+    int i = 0;
+
+    // Initialize LEDs as output
+    IO0DIR |= LED1 | LED2;
+
+    // Turn both OFF initially
+    IO0CLR = LED1 | LED2;
+
+    UART0_Init();
+    UART0_TxString("UART Smart Switch Ready\r\n");
+
+    while (1) {
+        char ch = UART0_RxChar();
+
+        if (ch == '\n' || ch == '\r') {
+            cmd[i] = '\0';
+
+            if (strcmp(cmd, "ON1") == 0) {
+                IO0SET = LED1;
+                UART0_TxString("Switch 1 ON\r\n");
+            } else if (strcmp(cmd, "OFF1") == 0) {
+                IO0CLR = LED1;
+                UART0_TxString("Switch 1 OFF\r\n");
+            } else if (strcmp(cmd, "ON2") == 0) {
+                IO0SET = LED2;
+                UART0_TxString("Switch 2 ON\r\n");
+            } else if (strcmp(cmd, "OFF2") == 0) {
+                IO0CLR = LED2;
+                UART0_TxString("Switch 2 OFF\r\n");
+            } else {
+                UART0_TxString("Invalid Command\r\n");
+            }
+            i = 0; // Reset command buffer index
+        } else {
+            if (i < 4) {
+                cmd[i++] = ch;
+            } else {
+                i = 0;  // Reset if command too long
+            }
+        }
+    }
+}
+
+// Initialize UART0 at 9600 baud rate
+void UART0_Init(void) {
+    PINSEL0 |= 0x00000005;  // Enable RxD0 and TxD0
+    U0LCR = 0x83;           // 8-bit data, 1 stop bit, enable DLAB
+    U0DLL = 97;             // For 9600 baud rate @ 15MHz PCLK
+    U0DLM = 0;
+    U0LCR = 0x03;           // Disable DLAB
+}
+
+void UART0_TxChar(char ch) {
+    while (!(U0LSR & 0x20));  // Wait until THR is empty
+    U0THR = ch;
+}
+
+void UART0_TxString(const char *str) {
+    while (*str) {
+        UART0_TxChar(*str++);
+    }
+}
+
+char UART0_RxChar(void) {
+    while (!(U0LSR & 0x01));  // Wait until data is ready
+    return U0RBR;
+}
+
+void delay_ms(unsigned int ms) {
+    unsigned int i, j;
+    for (i = 0; i < ms; i++)
+        for (j = 0; j < 6000; j++); // Approximate delay
+}
